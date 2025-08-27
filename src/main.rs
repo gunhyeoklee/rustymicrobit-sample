@@ -3,78 +3,21 @@
 
 use panic_halt as _;
 use cortex_m_rt::entry;
-use embedded_hal::delay::DelayNs;
-use microbit::{board::Board, display::blocking::Display, hal::Timer};
+use embedded_hal::{delay::DelayNs, digital::OutputPin};
+use microbit::{board::Board, hal::Timer};
 
 #[entry]
 fn main() -> ! {
-    if let Some(board) = Board::take() {
-        let mut timer = Timer::new(board.TIMER0);
-        let mut display = Display::new(board.display_pins);
+    let mut board = Board::take().unwrap();
+    let mut timer = Timer::new(board.TIMER0);
 
-        #[allow(non_snake_case)]
-        let letter_I = [
-            [0, 1, 1, 1, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 1, 1, 1, 0],
-        ];
+    let _ = board.display_pins.col1.set_low();
+    let mut row1 = board.display_pins.row1;
 
-        let heart = [
-            [0, 1, 0, 1, 0],
-            [1, 0, 1, 0, 1],
-            [1, 0, 0, 0, 1],
-            [0, 1, 0, 1, 0],
-            [0, 0, 1, 0, 0],
-        ];
-
-        #[allow(non_snake_case)]
-        let letter_R = [
-            [0, 1, 1, 0, 0],
-            [0, 1, 0, 1, 0],
-            [0, 1, 1, 0, 0],
-            [0, 1, 0, 1, 0],
-            [0, 1, 0, 1, 0],
-        ];
-
-        #[allow(non_snake_case)]
-        let letter_u = [
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 1, 0, 1, 0],
-            [0, 1, 0, 1, 0],
-            [0, 1, 1, 1, 0],
-        ];
-
-        #[allow(non_snake_case)]
-        let letter_s = [
-            [0, 0, 0, 0, 0],
-            [0, 0, 1, 1, 0],
-            [0, 1, 0, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 1, 1, 1, 0],
-        ];
-
-        #[allow(non_snake_case)]
-        let letter_t = [
-            [0, 0, 1, 0, 0],
-            [0, 1, 1, 1, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 1, 0, 0],
-        ];
-        loop {
-            display.show(&mut timer, letter_I, 1000);
-            display.show(&mut timer, heart, 1000);
-            display.show(&mut timer, letter_R, 1000);
-            display.show(&mut timer, letter_u, 1000);
-            display.show(&mut timer, letter_s, 1000);
-            display.show(&mut timer, letter_t, 1000);
-            display.clear();
-            timer.delay_ms(250_u32);
-        }
+    loop {
+        let _ = row1.set_low();
+        timer.delay_ms(1_000);
+        let _ = row1.set_high();
+        timer.delay_ms(1_000);
     }
-
-    panic!("End");
 }
